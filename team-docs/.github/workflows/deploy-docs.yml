@@ -25,6 +25,4 @@ jobs:
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          cd mkdocs
-          cd team-docs
-          mkdocs gh-deploy --force
+          mkdocs gh-deploy -f ./team-docs/mkdocs.yml --force
