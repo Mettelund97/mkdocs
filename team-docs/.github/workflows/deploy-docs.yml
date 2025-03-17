@@ -1,4 +1,4 @@
-name: Debug and Deploy MkDocs
+name: Deploy MkDocs
 on:
   push:
     branches:
@@ -13,67 +13,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
-      - name: Extensive Debug Information
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "===================================="
-          echo "Repository contents:"
-          ls -R
-          echo "===================================="
-          echo "Looking for mkdocs.yml files:"
-          find . -name "mkdocs.yml" || echo "No mkdocs.yml files found"
-          echo "===================================="
-          echo "Current git branch:"
-          git branch --show-current
-          
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material
-          
-      - name: Try multiple mkdocs approaches
+          pip install mkdocs
+      - name: Deploy
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          
-          echo "===================================="
-          echo "Approach 1: Try root directory"
-          ls -la
-          mkdocs gh-deploy --force || echo "Approach 1 failed"
-          
-          echo "===================================="
-          echo "Approach 2: Try with team-docs directory"
-          if [ -d "team-docs" ]; then
-            cd team-docs
-            ls -la
-            mkdocs gh-deploy --force || echo "Approach 2 failed"
-            cd ..
-          else
-            echo "team-docs directory not found"
-          fi
-          
-          echo "===================================="
-          echo "Approach 3: Try with explicit config path"
-          if [ -f "team-docs/mkdocs.yml" ]; then
-            mkdocs gh-deploy -f team-docs/mkdocs.yml --force || echo "Approach 3 failed"
-          else
-            echo "team-docs/mkdocs.yml not found"
-          fi
-          
-          echo "===================================="
-          echo "Approach 4: Try creating config if missing"
-          # If all else fails, create a minimal config
-          if [ ! -f "mkdocs.yml" ]; then
-            echo "Creating minimal mkdocs.yml in root"
-            echo "site_name: Documentation" > mkdocs.yml
-            mkdir -p docs
-            echo "# Welcome to the Documentation" > docs/index.md
-            mkdocs gh-deploy --force || echo "Approach 4 failed"
-          fi
+          mkdocs gh-deploy --force
